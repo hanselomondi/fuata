@@ -10,6 +10,16 @@ import java.nio.file.Paths
 
 object Blob {
 
+    /**
+     * Creates a new [blob][Blob] object and adds it to a file in .fuata/objects/ directory
+     * This blob file will have the SHA-1 of the content as its name and return this hash value
+     * @param filePath File path of the file in the working directory whose blob is being created
+     * @param objectsFolderPath File path of .fuata/objects/ directory where the blob file will be stored
+     * @return [Result] object with a string hash on success otherwise an exception on failure
+     * @throws InvalidPathException when an invalid filepath argument is passed
+     * @throws IOException when an invalid filepath argument is passed
+     * @throws Exception for any other operation that may fail
+     */
     fun createBlob(filePath: String, objectsFolderPath: String): Result<String> {
         return try {
             val path = Paths.get(filePath)
