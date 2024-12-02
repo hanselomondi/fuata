@@ -25,7 +25,7 @@ object Blob {
             val blobJson = Json.encodeToString(value = blob)  // Converts Blob object to a JSON string
             println(blobJson)
             val compressedBlob = Compression.compressData(blobJson)
-            println(compressedBlob)
+            println("Compressed blob: $compressedBlob")
 
             // Write data to objects file
             val objectsPath = Paths.get(objectsFolderPath, hash)
