@@ -12,30 +12,30 @@
 <ul>
   <li><a href="#overview">Overview</a>
     <ul>
-      <li><a href="tools-used">Tools Used</a></li>
+      <li><a href="#tools-used">Tools Used</a></li>
     </ul>
   </li>
-  <li><a href="command-line-usage">Command-Line Usage</a></li>
-  <li><a href="internal-architecture">Internal Architecture</a>
+  <li><a href="#command-line-usage">Command-Line Usage</a></li>
+  <li><a href="#internal-architecture">Internal Architecture</a>
     <ul>
-      <li><a href="high-level-view-of-the-system"/>High Level View of the System</a></li>
-      <li><a href="directed-acyclic-graph-_DAG_-objects"/>Directed Acyclic Graph (DAG) Objects</a></li>
-      <li><a href="hashing-and-compression"/>Hashing and Compression</a></li>
-      <li><a href="staging"/>Staging</a></li>
-      <li><a href="tree-construction"/>Tree Construction</a></li>
+      <li><a href="#high-level-view-of-the-system"/>High Level View of the System</a></li>
+      <li><a href="#directed-acyclic-graph-dag-objects"/>Directed Acyclic Graph (DAG) Objects</a></li>
+      <li><a href="#hashing-and-compression"/>Hashing and Compression</a></li>
+      <li><a href="#staging"/>Staging</a></li>
+      <li><a href="#tree-construction"/>Tree Construction</a></li>
     </ul>
   </li>
-  <li><a href="how-it-works">How It Works</a>
+  <li><a href="#how-it-works">How It Works</a>
     <ul>
-      <li><a href="initialising-a-fuata-repository"/>Initialising a Fuata Repository</a></li>
-      <li><a href="staging-a-file"/>Staging a File</a></li>
-      <li><a href="committing-a-file"/>Committing a File</a></li>
-      <li><a href="logging-commit-history"/>Logging Commit History</a></li>
-      <li><a href="diffing"/>Diffing</a></li>
+      <li><a href="#initialising-a-fuata-repository"/>Initialising a Fuata Repository</a></li>
+      <li><a href="#staging-a-file"/>Staging a File</a></li>
+      <li><a href="#committing-a-file"/>Committing a File</a></li>
+      <li><a href="#logging-commit-history"/>Logging Commit History</a></li>
+      <li><a href="#diffing"/>Diffing</a></li>
     </ul>
   </li>
-  <li><a href="file-structure">File Structure</a></li>
-  <li><a href="current-limitiations-and-future-work">Current Limitations and Future Work</a></li>
+  <li><a href="#file-structure">File Structure</a></li>
+  <li><a href="#current-limitiations-and-future-work">Current Limitations and Future Work</a></li>
 </ul>
 
 ## Overview
