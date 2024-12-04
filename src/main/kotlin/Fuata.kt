@@ -78,6 +78,38 @@ class Fuata(private val repoDir: Path = Paths.get(REPO_DIR).toAbsolutePath().nor
         }
     }
 
+    fun commit(
+        commitMessage: String
+    ) {
+        try {
+            val fuataDir = repoDir.resolve(REPO_PROPER)
+            val refsDir = fuataDir.resolve("$REFS_DIR/heads/main")
+            val parentCommitHash = Files.readString(refsDir)
+            // Read content from the index file
+            val indexFileContent = Files.readAllBytes(fuataDir.resolve(INDEX_FILE))
+            // In line 50 of Indexing.addFileToIndex, data is compressed before being written to the index file
+            val decompressedFileContent = Compression.decompressData(indexFileContent)
+            println("Fuata.commit() : content from index file: $decompressedFileContent")
+            // Deserialize the content extracted from the index file
+            val indexEntries = Json.decodeFromString<List<IndexEntry>>(decompressedFileContent)
+            // Extract the index file content into a map of Map<filePath, fileHash>
+            val stagedFiles = indexEntries.associate { indexEntry ->
+                indexEntry.path to indexEntry.hash
+            }
+            println("stageFiles: Map<filePath, fileHash> = $stagedFiles")
+            // Invoke the createCommit function
+            CommitUtil.createCommit(
+                message = commitMessage,
+                parentCommitHash = parentCommitHash,
+                stagedFiles = stagedFiles,
+                objectsDirectory = fuataDir.resolve(OBJECTS_DIR).toString(),
+                refsDirectory = fuataDir.resolve(refsDir).toString()
+            ).also { println("newCommitHash: $it") }
+        } catch (e: Exception) {
+            println("Fuata.commit() : error while committing files: ${e.message ?: ""}")
+        }
+    }
+
     private companion object {
         const val REPO_DIR = "."  // Current working directory
         const val REPO_PROPER = ".fuata"
