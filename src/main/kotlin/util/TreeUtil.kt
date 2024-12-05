@@ -81,7 +81,7 @@ object TreeUtil {
      * Utility function to get the directory part of the file path (up to but not including the file name)
      */
     private fun getDirectoryPath(filePath: String): String {
-        val lastSlash = filePath.lastIndexOf("/")
+        val lastSlash = filePath.lastIndexOf("\\")
         return if (lastSlash != -1) filePath.substring(0, lastSlash) else ""
     }
 
