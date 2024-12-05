@@ -3,8 +3,10 @@ package util
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import model.Commit
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -17,6 +19,7 @@ object CommitUtil {
      * @param parentCommitHash Commit hash the HEAD is currently referencing at the time of creating a new commit
      * @param stagedFiles A list of files that are in .fuata/index and their metadata
      * @param objectsDirectory File path to .fuata/objects/ directory
+     * @param refsDirectory File path to .fuata/refs/ directory
      * @return Hash of the newly created commit object
      * @throws Exception If this operation fails
      */
@@ -24,11 +27,13 @@ object CommitUtil {
         message: String,
         parentCommitHash: String?,
         stagedFiles: Map<String, String>,  // Map<filePath, fileHash>
-        objectsDirectory: String
+        objectsDirectory: String,
+        refsDirectory: String
     ): Result<String> {
         return try {
             lateinit var newCommit: Commit
             val parentCommit = getParentCommit(parentCommitHash, objectsDirectory)
+            println("parentCommit: $parentCommit ?: no parentCommit")
             // Get parentTreeHash
             val parentTreeHash = parentCommit?.tree
             // Derive the parentTree (tree referenced by the parent commit)
@@ -63,6 +68,9 @@ object CommitUtil {
             val newCommitHash = Hashing.generateHash(newCommitJson)
             val compressedJson = Compression.compressData(newCommitJson)
             Files.write(Paths.get(objectsDirectory, newCommitHash), compressedJson)
+            // Update the hash in the references folder
+            val refsFile = Paths.get(refsDirectory)
+            Files.writeString(refsFile, newCommitHash)
             // Return the new commit hash
             Result.success(newCommitHash)
         } catch (e: Exception) {
@@ -78,11 +86,30 @@ object CommitUtil {
      * @return Parent Commit object
      */
     private fun getParentCommit(commitHash: String?, objectDirectory: String): Commit? {
-        return commitHash?.let { hash ->
-            val parentCommitObject = Files.readAllBytes(Paths.get(objectDirectory, hash))
+        println("getParentCommit invoked with commitHash: $commitHash")
+        if (commitHash.isNullOrBlank()) {
+            println("No parent commit hash found. This might be the first commit.")
+            return null
+        }
+
+        val parentCommitPath = Paths.get(objectDirectory, commitHash)
+        if (!Files.exists(parentCommitPath)) {
+            println("Parent commit file not found: $parentCommitPath")
+            return null
+        }
+
+        return try {
+            val parentCommitObject = Files.readAllBytes(parentCommitPath)
             val parentCommitJson = Compression.decompressData(parentCommitObject)
-            println("CommitUtil.getParentCommit() : parentCommit Json: $parentCommitJson")
-            Json.decodeFromString(parentCommitJson)
+            println("Decompressed parent commit JSON: $parentCommitJson")
+            Json.decodeFromString<Commit>(parentCommitJson)
+        } catch (e: Exception) {
+            println("Error reading or parsing parent commit: ${e.message}")
+            throw Exception("Failed to get parent commit")
+        }
+    }
+
+
         }
     }
 
