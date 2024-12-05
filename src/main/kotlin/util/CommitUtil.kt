@@ -121,4 +121,19 @@ object CommitUtil {
         val utcNow = now.withZoneSameInstant(ZoneId.of("UTC"))
         return utcNow.format(DateTimeFormatter.ISO_INSTANT) // Format as ISO 8601 string
     }
+
+    /**
+     * Returns the UtcTimestamp as a formatted String
+     */
+    private fun displayCommitTimestamp(utcTimestamp: String): String {
+        // Parse the UTC ISO 8601 string into an Instant
+        val instant = Instant.parse(utcTimestamp)
+
+        // Convert the Instant to the local timezone
+        val localTime = instant.atZone(ZoneId.systemDefault())
+
+        // Format the local time as a human-readable string
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm z")
+        return localTime.format(formatter)
+    }
 }
