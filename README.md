@@ -18,7 +18,7 @@
   <li><a href="#command-line-usage">Command-Line Usage</a></li>
   <li><a href="#internal-architecture">Internal Architecture</a>
     <ul>
-      <li><a href="#high-level-view-of-the-system"/>High Level View of the System</a></li>
+      <li><a href="#high-level-diagram-of-the-system"/>High Level Diagram of the System</a></li>
       <li><a href="#directed-acyclic-graph-dag-objects"/>Directed Acyclic Graph (DAG) Objects</a></li>
       <li><a href="#hashing-and-compression"/>Hashing and Compression</a></li>
       <li><a href="#staging"/>Staging</a></li>
@@ -40,7 +40,7 @@
 
 ## Overview
 <p>
-  Fuata operates on a simple set of commands:
+  Fuata operates on a simple set of commands. Some examples include:
   <ul>
     <li>
       <code>fuata add &lt;file_name&gt;</code>: Stages the given file, marking it for the next commit
@@ -61,7 +61,7 @@
   <ul>
     <li>Fuata has been written in <code>Kotlin</code></li>
     <li><code>IntelliJ IDE</code> for development</li>
-    <li><code>Git</code> for version control...😆😆 (C'mon, cut me some slack)</li>
+    <li><code>Git</code> for version control...😆😆 (c'mon, cut me some slack)</li>
   </ul>
 </p>
 
@@ -76,6 +76,7 @@
     <li>A <code>Directed Acyclic Graph (DAG)</code> data structure to represent the entire version contol system</li>
   </ul>
 </p>
+
 ### High Level Diagram of the System
 <div>
   <img src="res/System_Overview.png" alt="System Architecture" />
@@ -101,10 +102,10 @@
   <ol>
     <li><code>Blob</code></li>
     <p>
-      Each file in Fuata is tracked by its content hash. This hash serves as a unique identifierfor the file's content. When a file is created, its content is taken
+      Each file in Fuata is tracked by its content hash. This hash serves as a unique identifier for the file's content. When a file is created, its content is taken
       and used to create a hash using the SHA-1 algorithm. A new file, with the hash as its filename, is created in the <code>objects</code> folder of the repository
       proper. The content of the file in working directory is then taken, serialised, and compressed into a <code>ByteArray</code>. This byte array forms the <Blob>. This blob
-        is then taken and written to the object file. When a file changes, a new hash is generated and the file is re-staged. Even a single character
+        is then taken and written to the object file <code>.fuata/objects/&lt;file_hash&gt;</code>. When a file changes, a new hash is generated and the file is re-staged. Even a single character
       change will result in a new hash from the SHA-1 algotrithm.
     </p>
     <li><code>Tree</code></li>
@@ -163,7 +164,8 @@
 </p>
 
 ## How It Works
-### Intialising a Fuata Repository
+
+### Initialising a Fuata Repository
 <p>// TODO</p>
 
 ### Staging a File
