@@ -78,6 +78,11 @@ class Fuata(private val repoDir: Path = Paths.get(REPO_DIR).toAbsolutePath().nor
         }
     }
 
+    /**
+     * Invoked on the command `fuata commit <commit_message>`
+     * Creates a commit from the files that are currently staged
+     * @param commitMessage The commit message
+     */
     fun commit(
         commitMessage: String
     ) {
@@ -107,6 +112,24 @@ class Fuata(private val repoDir: Path = Paths.get(REPO_DIR).toAbsolutePath().nor
             ).also { println("newCommitHash: $it") }
         } catch (e: Exception) {
             println("Fuata.commit() : error while committing files: ${e.message ?: ""}")
+        }
+    }
+
+    /**
+     * Invoked on the command `<fuata log>`
+     * Displays the full commit history of the repository
+     */
+    fun log() {
+        try {
+            val fuataDir = repoDir.resolve(REPO_PROPER)
+            val head = fuataDir.resolve(HEAD_FILE)
+            val objectsDirectory = fuataDir.resolve(OBJECTS_DIR)
+            CommitUtil.logCommitHistory(
+                head = head.toString(),
+                objectsDirectory = objectsDirectory.toString()
+            )
+        } catch (e: Exception) {
+            println("log : error: ${e.message ?: "unknown error while displaying log"}")
         }
     }
 
