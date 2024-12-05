@@ -110,6 +110,37 @@ object CommitUtil {
     }
 
 
+    /**
+     * Displays all the commit history from the existing commit, starting at the commit currently pointed to by HEAD
+     * @param head File path to the HEAD file in .fuata repository proper
+     */
+    fun logCommitHistory(
+        head: String,
+        objectsDirectory: String,
+    ) {
+        // Read ref being pointed to by HEAD
+        val currentBranch = Files.readString(Paths.get(head)).also { println("currentBranch: $it") }
+        // Read the hash in refs/heads/<branch_name>
+        var headCommitHash = Files.readString(Paths.get(".fuata/$currentBranch"))
+        if (headCommitHash.isEmpty()) {
+            println("No commits made yet")
+            return
+        }
+        // Get the first commit by reading extracting the contents of refs/heads/<branch_name>
+        var headCommit = getParentCommit(headCommitHash, objectsDirectory)
+        // Iteratively loop through all commits that point to each other in this linked list that's a subset of the DAG
+        // Stop when you reach the first commit (last node in the list)
+        while (headCommit != null) {
+            // Print the contents of the commit
+            println("\n------------------------------------")
+            println("\ncommit $headCommitHash")
+            println("Author: ${headCommit.author}")
+            println("Date:   ${displayCommitTimestamp(headCommit.timestamp)}")
+            println("\n    ${headCommit.message}\n")
+
+            // Move to the next commit in the graph
+            headCommitHash = headCommit.parent
+            headCommit = getParentCommit(headCommitHash, objectsDirectory)
         }
     }
 
