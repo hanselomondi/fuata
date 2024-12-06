@@ -69,11 +69,15 @@ Follow these steps to setup `Fuata` on your local.
    ```
 2. Navigate into the cloned repository
    ```bash
-   $ cd fuata
+   $ cd Fuata
    ```
 3. Run the installation script
    ```bash
-   $ ./install.sh
+   $ # First make the install script executable
+   $ chmod u+x install.sh
+   $
+   $ # Run the script as a super user
+   $ sudo ./install.sh
    ```
 4. Verify the installation
    ```bash
@@ -87,10 +91,11 @@ Follow these steps to setup `Fuata` on your local.
    ```
 2. Navigate into the cloned repository
    ```powershell
-   cd fuata
+   cd Fuata
    ```
 3. Run the installation script
    ```powershell
+   # You may need to run this is Administrator
    install.bat
    ```
 4. Add `C:\Program Files\Fuata` to your system PATH
@@ -130,7 +135,7 @@ Fuata uses several commands similar to Git, including:
   <p>
     In the diagram above, you can see a visual representation of the DAG with its different types of nodes: Blob, Tree and Commit objects.
     The commits are the top references. They point to other commits as well as the root tree created during the creation of a commit. The tree represents
-    a directory or subdirectories and they can point to blobs. A blob represents a file. The most recent commit is pointed to by the HEAD; a symbolic link
+    a directory or subdirectories, and they can point to blobs. A blob represents a file. The most recent commit is pointed to by the HEAD; a symbolic link
     to a file in refs folder, that holds the actual hash of the commit.
   </p>
 </div>

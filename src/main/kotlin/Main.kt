@@ -18,15 +18,15 @@ fun main(args: Array<String>) {
                 }
             }
             "commit" -> {
-                if (args.size < 3) {
+                if (args.size < 2) {
                     println("fuata: missing commit message")
                     println("Usage: fuata commit \"<commit_message>\"")
                 } else {
-                    fuata.commit(args[2])
+                    fuata.commit(args[1])
                 }
             }
             "log" -> fuata.log()
-            else -> println("fuata: unknown command ${args[1]}. \nAvailable commands: init, log, add, commit")
+            else -> println("fuata: unknown command ${args[0]}. \nAvailable commands: init, log, add, commit")
         }
     } catch (e: Exception) {
         println("fuata: ${e.message ?: "unknown error"}")
