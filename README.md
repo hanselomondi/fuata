@@ -147,28 +147,70 @@ Fuata uses several commands similar to Git, including:
 <div>
   Fuata operates using an object-based model where each node in the DAG can either be a <code>Blob</code>, <code>Tree</code> or
   <code>Commit</code> object.
+  
   <ol>
-    <li><code>Blob</code></li>
-    <p>
-      Each file in Fuata is tracked by its content hash. This hash serves as a unique identifier for the file's content. When a file is created, its content is taken
-      and used to create a hash using the SHA-1 algorithm. A new file, with the hash as its filename, is created in the <code>objects</code> folder of the repository
-      proper. The content of the file in working directory is then taken, serialised, and compressed into a <code>ByteArray</code>. This byte array forms the <Blob>. This blob
-        is then taken and written to the object file <code>.fuata/objects/&lt;file_hash&gt;</code>. When a file changes, a new hash is generated and the file is re-staged. Even a single character
-      change will result in a new hash from the SHA-1 algotrithm.
-    </p>
-    <li><code>Tree</code></li>
-    <p>
-      A directory is represented as a tree in Fuata. Each tree object contains references to other trees (subdirectories) or files
-      (by their hashes). These tree objects form a hierarchical structure that mirrors the file system's directory structure.
-      Additionally, a tree object (a root tree) is created when creating a new commit, and references all directories and files
-      present in the working directory at that specific time.
-    </p>
-    <li><code>Commits</code></li>
-    <p>
-      A commit contains the current state of the repository, including references to the root tree and metadata like the commit message and 
-      timestamp. Each commit is associated with a unique hash. A new commit will reference the root tree created during a commit operation and also the parent commit (the
-      immediate former commit being pointed to by 
-    </p>
+    <li>
+      <code>Blob</code>
+      <p>
+        Each file in Fuata is tracked by its content hash. This hash serves as a unique identifier for the file's content. When a file is created, its content is taken
+        and used to create a hash using the SHA-1 algorithm. A new file, with the hash as its filename, is created in the <code>objects</code> folder of the repository
+        proper. The content of the file in working directory is then taken, serialised, and compressed into a <code>ByteArray</code>. This byte array forms the <Blob>. This blob
+          is then taken and written to the object file <code>.fuata/objects/&lt;file_hash&gt;</code>. When a file changes, a new hash is generated and the file is re-staged. Even a single character
+        change will result in a new hash from the SHA-1 algorithm.
+      </p>
+      <p>Internal structure of a <code>Blob</code>:</p>
+      <pre>
+        <code class="language-kotlin">
+          @Serializable
+          data class Blob(
+              val type: String = "blob",
+              val path: String,
+              val fileContent: String
+          )
+        </code>
+      </pre>
+    </li>
+    <li>
+      <code>Tree</code>
+      <p>
+        A directory is represented as a tree in Fuata. Each tree object contains references to other trees (subdirectories) or files
+        (by their hashes). These tree objects form a hierarchical structure that mirrors the file system's directory structure.
+        Additionally, a tree object (a root tree) is created when creating a new commit, and references all directories and files
+        present in the working directory at that specific time.
+      </p>
+      <p>Internal structure of a <code>Tree</code>:</p>
+      <pre>
+        <code class="language-kotlin">
+          @Serializable
+          data class Tree(
+              val type: String = "tree",
+              val entries: Map<String, String> = mapOf()
+          )
+        </code>
+      </pre>
+    </li>
+    <li>
+      <code>Commits</code>
+      <p>
+        A commit contains the current state of the repository, including references to the root tree and metadata like the commit message and 
+        timestamp. Each commit is associated with a unique hash. A new commit will reference the root tree created during a commit operation and also the parent commit (the
+        immediate former commit being pointed to by 
+      </p>
+      <p>Internal structure of a <code>Commit</code>:</p>
+      <pre>
+        <code>
+          @Serializable
+          data class Commit(
+              val type: String = "commit",
+              val tree: String,
+              val parent: String?,
+              val author: String = "John Doe <john.doe@gmail.com>",
+              val timestamp: String,
+              val message: String
+          )
+        </code>
+      </pre>
+    </li>
   </ol>
 </div>
 
