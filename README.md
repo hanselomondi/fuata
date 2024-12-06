@@ -35,8 +35,7 @@
       <li><a href="#diffing"/>Diffing</a></li>
     </ul>
   </li>
-  <li><a href="#file-structure">File Structure</a></li>
-  <li><a href="#current-limitiations-and-future-work">Current Limitations and Future Work</a></li>
+  <li><a href="#current-limitations-and-future-work">Current Limitations and Future Work</a></li>
 </ul>
 
 ## Overview
@@ -154,8 +153,8 @@ Fuata uses several commands similar to Git, including:
       <p>
         Each file in Fuata is tracked by its content hash. This hash serves as a unique identifier for the file's content. When a file is created, its content is taken
         and used to create a hash using the SHA-1 algorithm. A new file, with the hash as its filename, is created in the <code>objects</code> folder of the repository
-        proper. The content of the file in working directory is then taken, serialised, and compressed into a <code>ByteArray</code>. This byte array forms the <Blob>. This blob
-          is then taken and written to the object file <code>.fuata/objects/&lt;file_hash&gt;</code>. When a file changes, a new hash is generated and the file is re-staged. Even a single character
+        proper. The content of the file in working directory is then taken, serialised, and compressed into a <code>ByteArray</code>. This byte array forms the <code>Blob</code>;. This blob
+          is then taken and written in the object file <code>.fuata/objects/&lt;file_hash&gt;</code>. When a file changes, a new hash is generated and the file is re-staged. Even a single character
         change will result in a new hash from the SHA-1 algorithm.
       </p>
       <p>Internal structure of a <code>Blob</code>:</p>
@@ -184,7 +183,7 @@ Fuata uses several commands similar to Git, including:
           @Serializable
           data class Tree(
               val type: String = "tree",
-              val entries: Map<String, String> = mapOf()
+              val entries: Map&lt;String, String&gt; = mapOf()
           )
         </code>
       </pre>
@@ -194,7 +193,7 @@ Fuata uses several commands similar to Git, including:
       <p>
         A commit contains the current state of the repository, including references to the root tree and metadata like the commit message and 
         timestamp. Each commit is associated with a unique hash. A new commit will reference the root tree created during a commit operation and also the parent commit (the
-        immediate former commit being pointed to by 
+        immediate former commit being pointed to by <code>HEAD</code>
       </p>
       <p>Internal structure of a <code>Commit</code>:</p>
       <pre>
@@ -218,7 +217,7 @@ Fuata uses several commands similar to Git, including:
 <p>
   Fuata uses the <code>SHA-1</code> hashing algorithm that takes a String type and returns a 40-digit hexadecimal value as a String.
   For compression, Kotlin's internal libraries are used. Specifically, the <code>Deflater</code> and <code>Inflater</code> classes and their methods
-  are used to decompress and compress items, respectivelly. The output of this compression is a ByteArray, while decompression reverts it to its original
+  are used to decompress and compress items, respectively. The output of this compression is a ByteArray, while decompression reverts it to its original
   string. This compressed data is what is written in files within the objects folder (object files). This is crucial in minimising the space taken by these object
   files, making Fuata more efficient.
 </p>
@@ -249,27 +248,93 @@ Fuata uses several commands similar to Git, including:
 ### Tree Construction
 <p>
   A tree object is created to represent a directory. This tree has a list of entries that point to blobs of files existing within that directory.
-  Subsequently, a tree object is also created during the commiting process. A root tree that points to all subtrees or blobs present at a particular
+  Subsequently, a tree object is also created during the committing process. A root tree that points to all subtrees or blobs present at a particular
   moment, representing the state of the working directory.
 </p>
 
 ## How It Works
 
 ### Initialising a Fuata Repository
-<p>// TODO</p>
+The command `fuata init` is used for this purpose.
+
+In your pwd (present working directory), this command will create a new dot-prefixed directory called `.fuata`.
+Additionally, the following directories and files will be created within the `.fuata` directory:
+- HEAD (file)
+- refs/heads/main (dir)
+- objects (dir)
+- index (file)
+
+The HEAD file is a symbolic reference to the most recent commit and the current branch the repository is in. It achieves
+this by pointing to `refs/heads/<current_branch>`.
+
+The `objects` directory holds all the blobs, tree objects and commit objects that have been created during the staging of
+files and commits.
+
+The `index` file holds a list of dictionaries representing metadata of the files that have been staged. All files contained
+in this file are then used to create a commit.
+
+The `refs` directory holds information on all the branches that exist in the directory. During initialisation, the first
+branch created is the `main` branch under `refs/heads/main`. Inside this main file, is a commit hash of the most
+recent commit. If no commit has been made, this file will be empty.
+
+After initialisation, the repository proper will have the structure below:
+```xml
+.fuata
+    |__objects
+    |__refs
+    |    |__heads
+    |        |__main
+    |__HEAD
+    |__index
+```
 
 ### Staging a File
-<p>// TODO</p>
+The command `fuata add <filename>` is used for this purpose.
+
+For this to work correctly, you have to be in the root directory that contains the .fuata repository.
+
+When staging a file, for example `test.txt`, it is added to `.fuata/index` as a JSON object.
+
+```json
+{
+   "path": "path/to/file",
+   "hash": "abc123...7x8y9z"
+}
+```
+Additionally, a hash is generated from the content of test.txt and a blob is created for it and placed in `.fuata/objects`.
+The hash is used as the file name for the blob. The content of this blob is a compressed `ByteArray` generated
+from the metadata of test.txt. This metadata includes the file path and the file content.
 
 ### Committing a File
-<p>// TODO</p>
+The command `fuata commit "<commit_message>"` is used for this purpose.
+
+Firstly, the `.fuata/index` file is read to identify all the staged files. Afterwards, the parent commit (currently pointed
+to by HEAD) and its parent tree are retrieved. A new root tree is created for this new commit and the files in the 
+staging area are added to its references. If any files referenced by the parent tree have not changed, they are also added
+to the new root tree being created. The staging area is then cleared. After this new root tree is created, its converted
+into a JSON object that is used to generate a hash, then converted into a compressed ByteArray and stored in an object
+in `.fuata/objects`.
+
+A new commit is also created, referencing this root tree. The commit is also made to point to the previous commit.
+An object file with the commit metadata is also created and stored in `.fuata/objects`.
 
 ### Logging Commit History
-<p>// TODO</p>
+The command `fuata log` command is used for this purpose.
+
+Firstly, the current branch `HEAD` is pointing to in the `refs` directory, is read to obtain the hash of the most recent commit (head commit).
+Since this hash is the file name of a commit object file in `.fuata/objects`, the details of the commit are extracted. Each commit
+points to the previous commit and, therefore, the commits can be traversed to display their deserialised metadata.
+
+### Creating Branches
+The command `fuata create-branch <branch_name>` is used for this purpose.
+
+This command creates a new file in the `refs/heads` directory and copies the hash of the head commit.
+For example, if a new branch named `new_branch` is created, the new file will be `refs/heads/new_branch`.
+
+The content of the `HEAD` file will also be overwritten to point to the newly created branch.
 
 ### Diffing
 <p>// TODO</p>
 
-## File Structure
-
 ## Current Limitations and Future Work
+<p>// TODO</p>
