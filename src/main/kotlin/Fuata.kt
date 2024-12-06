@@ -17,7 +17,7 @@ class Fuata(private val repoDir: Path = Paths.get(REPO_DIR).toAbsolutePath().nor
      * Initialises a repository proper `.fuata` that will store all version history information
      * @throws FileAlreadyExistsException If a Fuata directory was already initialise in the directory
      */
-    init {
+    fun initialiseRepository() {
         try {
             val fuataDir = repoDir.resolve(REPO_PROPER)
             println("fuataDir: $fuataDir")
@@ -47,6 +47,8 @@ class Fuata(private val repoDir: Path = Paths.get(REPO_DIR).toAbsolutePath().nor
         } catch (e: FileAlreadyExistsException) {
             println(e.reason)
             throw e
+        } catch (e: Exception) {
+            println(e.message ?: "failed initialisation : unknown error")
         }
     }
 
@@ -57,6 +59,7 @@ class Fuata(private val repoDir: Path = Paths.get(REPO_DIR).toAbsolutePath().nor
      */
     fun add(path: String) {
         try {
+            requireInitialisation("add")
             val filePath = Paths.get(REPO_DIR, path)
             val fuataDir = repoDir.resolve(REPO_PROPER)
             val result = Indexing.addFileToIndex(
@@ -87,6 +90,7 @@ class Fuata(private val repoDir: Path = Paths.get(REPO_DIR).toAbsolutePath().nor
         commitMessage: String
     ) {
         try {
+            requireInitialisation("commit")
             val fuataDir = repoDir.resolve(REPO_PROPER)
             val refsDir = fuataDir.resolve("$REFS_DIR/heads/main")
             val parentCommitHash = Files.readString(refsDir)
@@ -121,6 +125,7 @@ class Fuata(private val repoDir: Path = Paths.get(REPO_DIR).toAbsolutePath().nor
      */
     fun log() {
         try {
+            requireInitialisation("log")
             val fuataDir = repoDir.resolve(REPO_PROPER)
             val head = fuataDir.resolve(HEAD_FILE)
             val objectsDirectory = fuataDir.resolve(OBJECTS_DIR)
@@ -140,5 +145,23 @@ class Fuata(private val repoDir: Path = Paths.get(REPO_DIR).toAbsolutePath().nor
         const val INDEX_FILE = "index"
         const val REFS_DIR = "refs"
         const val HEAD_FILE = "HEAD"
+
+        /**
+         * Checks if a Fuata repository has already been initialised in the current directory
+         */
+        fun repoIsInitialised(): Boolean {
+            return Files.exists(Paths.get(REPO_DIR).resolve(REPO_PROPER))
+        }
+
+        /**
+         * Checks if a Fuata repository has been initialised in the current directory before
+         * running any command other than `fuata init`
+         * @param command The particular command passed in the command line interface
+         * @throws Exception When a Fuata repository has not been initialised in the current directory
+         */
+        fun requireInitialisation(command: String) {
+            if (!repoIsInitialised())
+                throw Exception("Fuata repository not found : cannot run command `fuata $command`")
+        }
     }
 }
