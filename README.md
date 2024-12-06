@@ -15,6 +15,7 @@
       <li><a href="#tools-used">Tools Used</a></li>
     </ul>
   </li>
+  <li><a href="installation-guide">Installation Guide</a></li>
   <li><a href="#command-line-usage">Command-Line Usage</a></li>
   <li><a href="#internal-architecture">Internal Architecture</a>
     <ul>
@@ -40,18 +41,8 @@
 
 ## Overview
 <p>
-  Fuata operates on a simple set of commands. Some examples include:
-  <ul>
-    <li>
-      <code>fuata add &lt;file_name&gt;</code>: Stages the given file, marking it for the next commit
-    </li>
-    <li>
-      <code>fuata commit &lt;message&gt;</code>: Commits the staged changes with a message, creating a new snapshot of the project
-    </li>
-    <li>
-      <code>fuata log</code>: Displays a log of all previous commits, showing the commit history
-    </li>
-  </ul>
+  Fuata operates on a simple set of commands to initialise a repository within an existing directory, add files to the staging area,
+  create commits from staged files, and view commit history.
   Each file is tracked with a hash, representing its content. Changes are tracked at the file level, and directories
   are represented as trees, where the tree's nodes point to file hashes or other subdirectories (subtrees).
 </p>
@@ -65,8 +56,65 @@
   </ul>
 </p>
 
+
+## Installation Guide
+Follow these steps to setup `Fuata` on your local.
+
+#### Prerequisites
+- Java 11 or higher installed on your local (JDK)
+
+#### Unix (Linux/macOS)
+1. Clone the repository
+   ```bash
+   $ git clone git@github.com:hanselomondi/Fuata.git
+   ```
+2. Navigate into the cloned repository
+   ```bash
+   $ cd fuata
+   ```
+3. Run the installation script
+   ```bash
+   $ ./install.sh
+   ```
+4. Verify the installation
+   ```bash
+   $ fuata
+   ```
+
+#### Windows
+1. Clone the repository
+   ```powershell
+   git clone git@github.com:hanselomondi/Fuata.git
+   ```
+2. Navigate into the cloned repository
+   ```powershell
+   cd fuata
+   ```
+3. Run the installation script
+   ```powershell
+   install.bat
+   ```
+4. Add `C:\Program Files\Fuata` to your system PATH
+5. Verify the installation
+   ```powershell
+   fuata
+   ```
+
 ## Command-Line Usage
-<p>// Todo</p>
+Fuata uses several commands similar to Git, including:
+- ```bash
+  # Initialise a repository
+  $ fuata init
+
+  # Stage a file
+  $ fuata add <file_name>
+
+  # Commit staged files
+  $ fuata commit "Include a commit message"
+
+  # View commit history
+  $ fuata log
+  ```
 
 ## Internal Architecture
 <p>
