@@ -112,7 +112,8 @@ class Fuata(private val repoDir: Path = Paths.get(REPO_DIR).toAbsolutePath().nor
                 parentCommitHash = parentCommitHash,
                 stagedFiles = stagedFiles,
                 objectsDirectory = fuataDir.resolve(OBJECTS_DIR).toString(),
-                refsDirectory = fuataDir.resolve(refsDir).toString()
+                refsDirectory = fuataDir.resolve(refsDir).toString(),
+                indexFile = fuataDir.resolve(INDEX_FILE).toString()
             ).also { println("newCommitHash: $it") }
         } catch (e: Exception) {
             println("Fuata.commit() : error while committing files: ${e.message ?: ""}")

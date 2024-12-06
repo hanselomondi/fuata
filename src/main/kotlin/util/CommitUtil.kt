@@ -28,7 +28,8 @@ object CommitUtil {
         parentCommitHash: String?,
         stagedFiles: Map<String, String>,  // Map<filePath, fileHash>
         objectsDirectory: String,
-        refsDirectory: String
+        refsDirectory: String,
+        indexFile: String
     ): Result<String> {
         return try {
             lateinit var newCommit: Commit
@@ -71,6 +72,9 @@ object CommitUtil {
             // Update the hash in the references folder
             val refsFile = Paths.get(refsDirectory)
             Files.writeString(refsFile, newCommitHash)
+            // Clear the index file
+            val indexFile = Paths.get(indexFile)
+            Files.writeString(indexFile, Json.encodeToString(emptyList<String>()))
             // Return the new commit hash
             Result.success(newCommitHash)
         } catch (e: Exception) {
