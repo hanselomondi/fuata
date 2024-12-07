@@ -81,8 +81,8 @@ object TreeUtil {
      * Utility function to get the directory part of the file path (up to but not including the file name)
      */
     private fun getDirectoryPath(filePath: String): String {
-        val lastSlash = filePath.lastIndexOf("\\")
-        return if (lastSlash != -1) filePath.substring(0, lastSlash) else ""
+        val path = Paths.get(filePath) // Automatically handles separators
+        return path.parent?.toString() ?: "" // Returns the directory path or an empty string
     }
 
     /**
@@ -106,7 +106,7 @@ object TreeUtil {
             val treeObjectFileContent = Files.readAllBytes(Paths.get(objectsDirectory, treeHash))
             val treeJson = Compression.decompressData(treeObjectFileContent)
             println("TreeUtil.getTree() : treeJson: $treeJson")
-            Json.decodeFromString(treeJson)
+            Result.success(Json.decodeFromString(treeJson))
         } catch (e: IOException) {
             Result.failure(Exception("TreeUtil.getTree(): fatal: pathspec `$treeHash` did not match any files"))
         } catch (e: NoSuchFileException) {

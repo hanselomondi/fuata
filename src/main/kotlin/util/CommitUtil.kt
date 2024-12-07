@@ -34,7 +34,7 @@ object CommitUtil {
         return try {
             lateinit var newCommit: Commit
             val parentCommit = getParentCommit(parentCommitHash, objectsDirectory)
-            println("parentCommit: $parentCommit ?: no parentCommit")
+            println("parentCommit: ${parentCommit ?: "no parentCommit"}")
             // Get parentTreeHash
             val parentTreeHash = parentCommit?.tree
             // Derive the parentTree (tree referenced by the parent commit)
