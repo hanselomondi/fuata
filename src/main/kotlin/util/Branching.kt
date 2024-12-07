@@ -12,9 +12,9 @@ object Branching {
      * Creates a new file in `.fuata/refs/heads/`
      * Changes the branch HEAD directly references
      * @param branchName Name of the new branch being created
-     * @param head File path of `.fuata/HEAD`
-     * @param refsDirectory Files path of fuata refs directory `.fuata/refs/`
-     * @return The new branch name in a Result wrapper
+     * @param head File path to `.fuata/HEAD`
+     * @param refsDirectory Files path to fuata refs directory `.fuata/refs/`
+     * @return The success message in a Result wrapper
      * @throws FileAlreadyExistsException If the branch already exists
      * @throws Exception
      */
@@ -53,9 +53,9 @@ object Branching {
     /**
      * Moves the HEAD from one branch to another
      * @param branchName The name of the branch you want HEAD to point to
-     * @param head File path of `.fuata/HEAD`
-     * @param refsDirectory Files path of fuata refs directory `.fuata/refs/`
-     * @return The branch name wrapped in a Result
+     * @param head File path to `.fuata/HEAD`
+     * @param refsDirectory Files path to fuata refs directory `.fuata/refs/`
+     * @return The success message wrapped in a Result
      * @throws FileNotFoundException If no branch by the name provided exists
      * @throws Exception
      */
@@ -76,6 +76,44 @@ object Branching {
             }
         } catch (e: FileNotFoundException) {
             Result.failure(Exception("fatal: branch does not exist: cannot checkout to $branchName"))
+        } catch (e: Exception) {
+            Result.failure(Exception(e.message ?: "unknown error"))
+        }
+    }
+
+    /**
+     * Deletes a branch from the repository
+     * Deletes the branch file in `.fuata/refs/heads/`
+     * @param branchName Name of the branch to delete
+     * @param head File path to `.fuata/HEAD`
+     * @param refsDirectory File path to fuata refs directory `.fuata/refs`
+     * @return The success message wrapped in a Result
+     * @throws FileNotFoundException If the branch does not exist
+     * @throws Exception
+     */
+    fun deleteBranch(
+        branchName: String,
+        head: String,
+        refsDirectory: String
+    ): Result<String> {
+        return try {
+            val headRef = Files.readString(Paths.get(head))
+            val branchPath = Paths.get(refsDirectory).resolve("heads/$branchName")
+            // Check if the branch exists
+            if (Files.exists(branchPath)) {
+                // Check if the current branch is what HEAD is pointing to
+                if ("refs/heads/$branchName" == headRef)
+                    throw Exception("error deleting branch: currently checked out on branch '$branchName'")
+                // Delete the file in refs directory
+                Files.delete(branchPath)
+                // Return the Success message
+                Result.success("deleted branch '$branchName'")
+            } else {
+                throw FileNotFoundException("refs/heads/$branchName")
+            }
+            Result.success("deleted the branch '$branchName'")
+        } catch (e: FileNotFoundException) {
+            Result.failure(Exception("fatal: branch does not exist: cannot delete branch '$branchName'"))
         } catch (e: Exception) {
             Result.failure(Exception(e.message ?: "unknown error"))
         }
