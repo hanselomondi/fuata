@@ -17,6 +17,7 @@ fun main(args: Array<String>) {
                     fuata.add(args[1])
                 }
             }
+
             "commit" -> {
                 if (args.size < 2) {
                     println("fuata: missing commit message")
@@ -25,8 +26,30 @@ fun main(args: Array<String>) {
                     fuata.commit(args[1])
                 }
             }
+
             "log" -> fuata.log()
-            else -> println("fuata: unknown command ${args[0]}. \nAvailable commands: init, log, add, commit")
+            "create-branch" -> {
+                if (args.size < 2) {
+                    println("fuata: missing branch name")
+                    println("Usage: fuata create-branch <branch_name>")
+                } else {
+                    fuata.createBranch(args[1])
+                }
+            }
+
+            "checkout" -> {
+                if (args.size < 2) {
+                    println("fuata: missing branch name")
+                    println("Usage: fuata checkout <branch_name>")
+                } else {
+                    fuata.checkout(args[1])
+                }
+            }
+
+            else -> println(
+                "fuata: unknown command ${args[0]}. " +
+                        "\nAvailable commands: init, log, add, commit, create-branch, checkout"
+            )
         }
     } catch (e: Exception) {
         println("fuata: ${e.message ?: "unknown error"}")

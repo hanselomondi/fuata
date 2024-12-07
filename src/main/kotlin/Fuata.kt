@@ -1,6 +1,7 @@
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import model.IndexEntry
+import util.Branching
 import util.CommitUtil
 import util.Compression
 import util.Indexing
@@ -136,6 +137,49 @@ class Fuata(private val repoDir: Path = Paths.get(REPO_DIR).toAbsolutePath().nor
             )
         } catch (e: Exception) {
             println("log : error: ${e.message ?: "unknown error while displaying log"}")
+        }
+    }
+
+    /**
+     * Invoked on the command `fuata create-branch <branch_name>`
+     * Creates a new branch and points HEAD to it
+     * @param branchName Name of the new branch being created
+     */
+    fun createBranch(branchName: String) {
+        try {
+            requireInitialisation("create-branch")
+            val fuataDir = repoDir.resolve(REPO_PROPER)
+            val head = fuataDir.resolve(HEAD_FILE)
+            val refsDir = fuataDir.resolve(REFS_DIR)
+            Branching.createBranch(
+                branchName = branchName,
+                head = head.toString(),
+                refsDirectory = refsDir.toString(),
+                repoProper = fuataDir.toString()
+            ).fold(onSuccess = { println(it) }, onFailure = { throw it })
+        } catch (e: Exception) {
+            println("create-branch : error: ${e.message ?: "unknown error while creating branch"}")
+        }
+    }
+
+    /**
+     * Invoked on the command `fuata checkout <branch_name>`
+     * Moves HEAD to reference the branch
+     * @param branchName Name of the branch you want HEAD to point to
+     */
+    fun checkout(branchName: String) {
+        try {
+            requireInitialisation("checkout")
+            val fuataDir = repoDir.resolve(REPO_PROPER)
+            val refsDir = fuataDir.resolve(REFS_DIR)
+            val head = fuataDir.resolve(HEAD_FILE)
+            Branching.checkout(
+                branchName = branchName,
+                head = head.toString(),
+                refsDirectory = refsDir.toString()
+            ).fold(onSuccess = { println(it) }, onFailure = { throw it })
+        } catch (e: Exception) {
+            println("checkout : error: ${e.message ?: "unknown error"}")
         }
     }
 
