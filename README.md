@@ -15,7 +15,7 @@
       <li><a href="#tools-used">Tools Used</a></li>
     </ul>
   </li>
-  <li><a href="installation-guide">Installation Guide</a></li>
+  <li><a href="#installation-guide">Installation Guide</a></li>
   <li><a href="#command-line-usage">Command-Line Usage</a></li>
   <li><a href="#internal-architecture">Internal Architecture</a>
     <ul>
