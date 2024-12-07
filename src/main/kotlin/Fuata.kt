@@ -183,6 +183,27 @@ class Fuata(private val repoDir: Path = Paths.get(REPO_DIR).toAbsolutePath().nor
         }
     }
 
+    /**
+     * Invoked on the command `fuata delete-branch <branch_name>`
+     * Deletes the branch file from `.fuata/refs/heads/` directory
+     * @param branchName Name of the branch being deleted
+     */
+    fun deleteBranch(branchName: String) {
+        try {
+            requireInitialisation("delete-branch")
+            val fuataDir = repoDir.resolve(REPO_PROPER)
+            val head = fuataDir.resolve(HEAD_FILE)
+            val refsDir = fuataDir.resolve(REFS_DIR)
+            Branching.deleteBranch(
+                branchName = branchName,
+                head = head.toString(),
+                refsDirectory = refsDir.toString()
+            ).fold(onSuccess = { println(it) }, onFailure = { throw it })
+        } catch (e: Exception) {
+            println("delete-branch : error: ${e.message ?: "unknown error"}")
+        }
+    }
+
     private companion object {
         const val REPO_DIR = "."  // Current working directory
         const val REPO_PROPER = ".fuata"

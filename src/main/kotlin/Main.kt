@@ -46,9 +46,18 @@ fun main(args: Array<String>) {
                 }
             }
 
+            "delete-branch" -> {
+                if (args.size < 2) {
+                    println("fuata: missing branch name")
+                    println("Usage: fuata delete-branch <branch_name>")
+                } else {
+                    fuata.deleteBranch(args[1])
+                }
+            }
+
             else -> println(
                 "fuata: unknown command ${args[0]}. " +
-                        "\nAvailable commands: init, log, add, commit, create-branch, checkout"
+                        "\nAvailable commands: init, log, add, commit, create-branch, checkout, delete-branch"
             )
         }
     } catch (e: Exception) {
