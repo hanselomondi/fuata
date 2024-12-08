@@ -316,7 +316,7 @@ The command `fuata commit "<commit_message>"` is used for this purpose.
 Firstly, the `.fuata/index` file is read to identify all the staged files. Afterwards, the parent commit (currently pointed
 to by HEAD) and its parent tree are retrieved. A new root tree is created for this new commit and the files in the 
 staging area are added to its references. If any files referenced by the parent tree have not changed, they are also added
-to the new root tree being created. The staging area is then cleared. After this new root tree is created, its converted
+to the new root tree being created. The staging area is then cleared. After this new root tree is created, it's converted
 into a JSON object that is used to generate a hash, then converted into a compressed ByteArray and stored in an object
 in `.fuata/objects`.
 
@@ -336,10 +336,22 @@ The command `fuata create-branch <branch_name>` is used for this purpose.
 This command creates a new file in the `refs/heads` directory and copies the hash of the head commit.
 For example, if a new branch named `new_branch` is created, the new file will be `refs/heads/new_branch`.
 
-The content of the `HEAD` file will also be overwritten to point to the newly created branch.
+### Switching Branches
+The command `fuata checkout <branch_name>` is used for this purpose.
+
+It overwrites the content of the `HEAD` file so that it points to the branch name.
+During this operation, it checks if a file with the same name as `branch_name` exists in `.fuata/refs/heads`. If the file
+exists, the content in HEAD is overwritten, otherwise an error message is displayed.
+
+### Deleting Branches
+The command `fuata delete-branch <branch_name>` is used for this purpose.
+
+Firstly, the `refs/heads` directory is checked for a file by the same branch name. If one exists, it is deleted, otherwise
+an error message is displayed.
 
 ### Diffing
-<p>// TODO</p>
+// Still under development
 
 ## Current Limitations and Future Work
-<p>// TODO</p>
+- Having a feature similar to `git status` that displays tracked files that have changes, untracked files, and files
+with changes that have been staged for the next commit.
