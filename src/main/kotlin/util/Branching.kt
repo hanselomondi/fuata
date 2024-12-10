@@ -1,5 +1,6 @@
 package util
 
+import java.io.File
 import java.io.FileNotFoundException
 import java.nio.file.FileAlreadyExistsException
 import java.nio.file.Files
@@ -116,6 +117,35 @@ object Branching {
             Result.failure(Exception("fatal: branch does not exist: cannot delete branch '$branchName'"))
         } catch (e: Exception) {
             Result.failure(Exception(e.message ?: "unknown error"))
+        }
+    }
+
+    /**
+     * Prints a list of all branches existing in the fuata repository
+     * @param refsDirectory File path to `.fuata/refs/`
+     * @param head File path to `.fuata/HEAD`
+     * @throws Exception
+     */
+    fun listBranches(
+        refsDirectory: String,
+        head: String
+    ) {
+        try {
+            // Get the current branch pointed to be HEAD
+            val headRef = Files.readString(Paths.get(head))
+            val headsDir = Paths.get(refsDirectory).resolve("heads")
+            // Get a list of all files in `.fuata/refs/heads/`
+            val branches = File(headsDir.toString()).listFiles()?.map { it.name } ?: emptyList()
+            branches.forEach { branch ->
+                if (headRef.equals("refs/heads/$branch")) {
+                    println("* $branch")  // Visual representation of the branch HEAD is pointing to currently
+                } else {
+                    println("  $branch")
+                }
+            }
+        } catch (e: Exception) {
+            println("error: ${e.message ?: "unknown errors"}")
+            throw e
         }
     }
 }

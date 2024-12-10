@@ -204,6 +204,24 @@ class Fuata(private val repoDir: Path = Paths.get(REPO_DIR).toAbsolutePath().nor
         }
     }
 
+    /**
+     * Invoked on the command `fuata list-branches`
+     * Lists all the branches existing in `.fuata/refs`
+     */
+    fun listBranches() {
+        try {
+            val fuataDir = repoDir.resolve(REPO_PROPER)
+            val refsDir = fuataDir.resolve(REFS_DIR)
+            val head = fuataDir.resolve(HEAD_FILE)
+            Branching.listBranches(
+                head = head.toString(),
+                refsDirectory = refsDir.toString()
+            )
+        } catch (e: Exception) {
+            println("list-branches : error: ${e.message ?: "unknown error"}")
+        }
+    }
+
     private companion object {
         const val REPO_DIR = "."  // Current working directory
         const val REPO_PROPER = ".fuata"

@@ -1,7 +1,7 @@
 fun main(args: Array<String>) {
     try {
         if (args.isEmpty()) {
-            println("fuata: missing command. Available commands: init, add, commit, log.")
+            println("fuata: missing command. Available commands: init, add, commit, log, create-branch, checkout, delete-branch, list-branches.")
             return
         }
 
@@ -54,6 +54,8 @@ fun main(args: Array<String>) {
                     fuata.deleteBranch(args[1])
                 }
             }
+
+            "list-branches" -> fuata.listBranches()
 
             else -> println(
                 "fuata: unknown command ${args[0]}. " +
