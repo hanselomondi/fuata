@@ -57,6 +57,15 @@ fun main(args: Array<String>) {
 
             "list-branches" -> fuata.listBranches()
 
+            "diff" -> {
+                if (args.size < 3) {
+                    println("fuata: missing an argument")
+                    println("Usage: fuata diff <commit_hash> <commit_hash>")
+                } else {
+                    fuata.diff(commit1Hash = args[1], commit2Hash = args[2])
+                }
+            }
+
             else -> println(
                 "fuata: unknown command ${args[0]}. " +
                         "\nAvailable commands: init, log, add, commit, create-branch, checkout, delete-branch"

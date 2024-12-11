@@ -3,7 +3,6 @@ import kotlinx.serialization.json.Json
 import model.IndexEntry
 import util.Branching
 import util.CommitUtil
-import util.Compression
 import util.Indexing
 import java.io.File
 import java.io.IOException
@@ -216,6 +215,30 @@ class Fuata(private val repoDir: Path = Paths.get(REPO_DIR).toAbsolutePath().nor
             )
         } catch (e: Exception) {
             println("list-branches : error: ${e.message ?: "unknown error"}")
+        }
+    }
+
+    /**
+     * Invoked on the command `fuata diff <commit_hash> <commit_hash>`
+     * Lists all the differences between two commits
+     * @param commit1Hash SHA-1 hash of the baseline commit object
+     * @param commit2Hash SHA-1 hash of the newer/revised commit object
+     */
+    fun diff(
+        commit1Hash: String,
+        commit2Hash: String
+    ) {
+        try {
+            requireInitialisation("diff")
+            val fuataDir = repoDir.resolve(REPO_PROPER)
+            val objectsDir = fuataDir.resolve(OBJECTS_DIR)
+            CommitUtil.diff(
+                commit1Hash = commit1Hash,
+                commit2Hash = commit2Hash,
+                objectsDirectory = objectsDir.toString()
+            ).fold(onSuccess = { println(it) }, onFailure = { throw it })
+        } catch (e: Exception) {
+            println("diff : error: ${e.message ?: "unknown error"}")
         }
     }
 

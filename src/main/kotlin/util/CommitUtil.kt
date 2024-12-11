@@ -3,7 +3,8 @@ package util
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import model.Commit
-import java.io.IOException
+import model.Tree
+import java.lang.StringBuilder
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.Instant
@@ -146,6 +147,95 @@ object CommitUtil {
             headCommitHash = headCommit.parent
             headCommit = getParentCommit(headCommitHash, objectsDirectory)
         }
+    }
+
+    /**
+     * Displays the diff between two commits[Commit]
+     * Retrieves the root tree[Tree] of one commit and compares its entries to those of the other commit
+     * @param commit1Hash Commit hash of the first commit that is the reference point (baseline)
+     * @param commit2Hash Commit hash of the second commit that is the revision
+     * @throws Exception
+     */
+    fun diff(
+        commit1Hash: String,
+        commit2Hash: String,
+        objectsDirectory: String
+    ): Result<String> {
+        return try {
+            // Retrieve commit from objects directory and their root trees
+            val commit1 = getParentCommit(commit1Hash, objectsDirectory)
+                ?: return Result.failure(Exception("commit hash `$commit1Hash` not found"))
+            val rootTree1 = TreeUtil.getTree(commit1.tree, objectsDirectory)
+                .getOrElse { throw it }
+            val commit2 = getParentCommit(commit2Hash, objectsDirectory)
+                ?: return Result.failure(Exception("commit hash `$commit2Hash` not found"))
+            val rootTree2 = TreeUtil.getTree(commit2.tree, objectsDirectory)
+                .getOrElse { throw it }
+            // Compare root trees of the commits
+            val diffResult = StringBuilder()
+            val entries1 = rootTree1.entries
+            val entries2 = rootTree2.entries
+            // Record added files
+            val addedFiles = entries2.keys - entries1.keys  // Get the set complement
+            if (addedFiles.isNotEmpty()) {
+                diffResult.append("\nAdded files:\n")
+                addedFiles.forEach { diffResult.append("  $it\n") }
+            }
+            // Record deleted files if any
+            val deletedFiles = entries1.keys - entries2.keys
+            if (deletedFiles.isNotEmpty()) {
+                diffResult.append("\nDeleted files:\n")
+                deletedFiles.forEach { diffResult.append("  $it\n") }
+            }
+            // Compare common files for changes
+            val commonFiles = entries1.keys.intersect(entries2.keys)
+            val modifiedFiles = commonFiles.filter { filePath -> entries1[filePath] != entries2[filePath] }
+            if (modifiedFiles.isNotEmpty()) {
+                diffResult.append("\nModified files:\n")
+                for (file in modifiedFiles) {
+                    diffResult.append("  $file\n")
+                    val content1 = Compression.decompressData(
+                        Files.readAllBytes(Paths.get(objectsDirectory, file))
+                    )
+                    val content2 = Compression.decompressData(
+                        Files.readAllBytes(Paths.get(objectsDirectory, file))
+                    )
+                    diffResult.append(compareFileContents(content1, content2))
+                }
+            }
+
+            Result.success(diffResult.toString())
+        } catch (e: Exception) {
+            Result.failure(Exception(e.message ?: "CommitUtil.diff() : unknown error"))
+        }
+    }
+
+    /**
+     * Compares the content of two files line-by-line
+     * @param content1 Content of the first file
+     * @param content2 Content of the second file
+     * @return A String containing all the differences
+     */
+    private fun compareFileContents(content1: String, content2: String): String {
+        val lines1 = content1.lines()
+        val lines2 = content2.lines()
+
+        val diffResult = StringBuilder()
+
+        // Simple line-by-line comparison
+        val maxLines = maxOf(lines1.size, lines2.size)
+        for (i in 0 until maxLines) {
+            val line1 = lines1.getOrNull(i)
+            val line2 = lines2.getOrNull(i)
+
+            if (line1 != line2) {
+                diffResult.append("Line ${i + 1}:\n")
+                diffResult.append("  -- $line1\n")
+                diffResult.append("  ++ $line2\n")
+            }
+        }
+
+        return diffResult.toString()
     }
 
     /**

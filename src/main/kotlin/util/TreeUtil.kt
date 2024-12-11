@@ -41,7 +41,6 @@ object TreeUtil {
                     }
                     val subTree = Tree(entries = subtreeEntries)
                     val serializedSubTree = Json.encodeToString(subTree)
-                    println("subTree Json: $serializedSubTree")
                     val subTreeHash = Hashing.generateHash(serializedSubTree)
                     // Write subtree data to its own object file
                     Files.write(Paths.get(objectsDirPath, subTreeHash), Compression.compressData(serializedSubTree))
@@ -51,21 +50,21 @@ object TreeUtil {
 
             // Blobs that are not in directories
             for ((path, hash) in stagedFiles) {
-                if (!directoryStructure.keys.contains(getDirectoryPath(path))) {
+                if (getDirectoryPath(path).isEmpty()) {
                     newEntries[path] = hash
                 }
             }
 
-            // Handle deleted files
+            // Handle deleted files (if a file is in the parent tree but not in staged files)
             for (path in parentEntries.keys) {
                 if (!stagedFiles.containsKey(path)) {
                     newEntries.remove(path)
                 }
             }
 
+            // Create the root tree with entries
             val rootTree = Tree(entries = newEntries)
             val serializedRootTree = Json.encodeToString(rootTree)
-            println("Serialised tree: $serializedRootTree")
             val compressedRootTree = Compression.compressData(serializedRootTree)
             val treeHash = Hashing.generateHash(serializedRootTree)
             println("Root tree hash: $treeHash")
