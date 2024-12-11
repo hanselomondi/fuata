@@ -73,8 +73,8 @@ object CommitUtil {
             val refsFile = Paths.get(refsDirectory)
             Files.writeString(refsFile, newCommitHash)
             // Clear the index file
-            val indexFile = Paths.get(indexFile)
-            Files.writeString(indexFile, Json.encodeToString(emptyList<String>()))
+            val index = Paths.get(indexFile)
+            Files.writeString(index, Json.encodeToString(emptyList<String>()))
             // Return the new commit hash
             Result.success(newCommitHash)
         } catch (e: Exception) {

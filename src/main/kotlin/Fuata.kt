@@ -96,12 +96,9 @@ class Fuata(private val repoDir: Path = Paths.get(REPO_DIR).toAbsolutePath().nor
             val refsDir = fuataDir.resolve("$REFS_DIR/heads/main")
             val parentCommitHash = Files.readString(refsDir)
             // Read content from the index file
-            val indexFileContent = Files.readAllBytes(fuataDir.resolve(INDEX_FILE))
-            // In line 50 of Indexing.addFileToIndex, data is compressed before being written to the index file
-            val decompressedFileContent = Compression.decompressData(indexFileContent)
-            println("Fuata.commit() : content from index file: $decompressedFileContent")
+            val indexFileContent = Files.readString(fuataDir.resolve(INDEX_FILE))
             // Deserialize the content extracted from the index file
-            val indexEntries = Json.decodeFromString<List<IndexEntry>>(decompressedFileContent)
+            val indexEntries = Json.decodeFromString<List<IndexEntry>>(indexFileContent)
             // Extract the index file content into a map of Map<filePath, fileHash>
             val stagedFiles = indexEntries.associate { indexEntry ->
                 indexEntry.path to indexEntry.hash

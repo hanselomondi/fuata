@@ -47,11 +47,10 @@ object Indexing {
 
                 indexData = indexData.plus(indexEntry)
                 println(indexData)
-                val compressedData = Compression.compressData(
-                    Json.encodeToString(ListSerializer(IndexEntry::class.serializer()), indexData)
-                        .also { println("Data written to index: $it") }  // Debugging info
-                )
-                Files.write(Paths.get(indexFile), compressedData)
+                val newIndexData = Json
+                    .encodeToString(ListSerializer(IndexEntry::class.serializer()), indexData)
+                    .also { println("Data written to index: $it") }  // Debugging info
+                Files.writeString(Paths.get(indexFile), newIndexData)
 
                 Result.success(blobHash)
             }.onFailure { exception ->
